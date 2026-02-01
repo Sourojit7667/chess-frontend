@@ -1,5 +1,7 @@
 import { useState } from "react";
 
+const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
+
 const Support = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -17,7 +19,7 @@ const Support = () => {
     setError("");
 
     try {
-      const response = await fetch("http://localhost:8080/api/contact", {
+      const response = await fetch(`${backendUrl}/api/contact`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
