@@ -61,6 +61,10 @@ const Multiplayer = () => {
         setGameStarted(true);
         break;
 
+      case "queued":
+        setStatusMessage("Searching for opponent...");
+        break;
+
       case "matched":
         // Matchmaking found an opponent
         setOpponent({ username: message.payload.opponentName || "Opponent" });
@@ -157,7 +161,7 @@ const Multiplayer = () => {
     // Connect to WebSocket and join matchmaking queue
     connectWS();
     
-    setTimeout(() => {
+    const sendMatchRequest = () => {
       if (wsRef.current?.readyState === WebSocket.OPEN) {
         wsRef.current.send(JSON.stringify({
           type: "find_match",
@@ -166,8 +170,12 @@ const Multiplayer = () => {
             userId: user?.id
           }
         }));
+      } else {
+        setTimeout(sendMatchRequest, 100);
       }
-    }, 500);
+    };
+    
+    setTimeout(sendMatchRequest, 100);
   };
 
   const cancelSearch = () => {
