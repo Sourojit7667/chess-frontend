@@ -282,7 +282,7 @@ const TwoPlayer = () => {
     setShowForfeitConfirm(false);
   };
 
-  // Save game result to database and update leaderboard
+  // Save game result to database (no leaderboard updates for two-player mode)
   const saveGameResult = async (result, points) => {
     if (!user?.id) {
       console.log("User not logged in, cannot save game");
@@ -293,12 +293,12 @@ const TwoPlayer = () => {
       // Save game to database
       const gameData = {
         user_id: user.id,
-        game_mode: "multiplayer",
+        game_mode: "two_player",
         result: result,
         moves: gameRef.current.history().join(" "),
       };
 
-      console.log("Saving multiplayer game:", gameData);
+      console.log("Saving two-player game:", gameData);
 
       const { error: insertError } = await supabase
         .from("games")
@@ -307,54 +307,10 @@ const TwoPlayer = () => {
       if (insertError) {
         console.error("Error inserting game:", insertError);
       } else {
-        console.log("Multiplayer game saved successfully");
+        console.log("Two-player game saved successfully");
       }
 
-      // Update leaderboard
-      if (points > 0) {
-        const username = user.user_metadata?.username || user.email?.split('@')[0] || 'Player';
-        
-        const { data: existingEntry } = await supabase
-          .from("leaderboards")
-          .select("*")
-          .eq("user_id", user.id)
-          .single();
-
-        if (existingEntry) {
-          const { error: updateError } = await supabase
-            .from("leaderboards")
-            .update({
-              multiplayer_points: existingEntry.multiplayer_points + points,
-              multiplayer_games_played: existingEntry.multiplayer_games_played + 1,
-              username: username,
-              updated_at: new Date().toISOString(),
-            })
-            .eq("user_id", user.id);
-
-          if (updateError) {
-            console.error("Error updating leaderboard:", updateError);
-          } else {
-            console.log("Leaderboard updated successfully");
-          }
-        } else {
-          const { error: insertLeaderboardError } = await supabase
-            .from("leaderboards")
-            .insert({
-              user_id: user.id,
-              username: username,
-              ai_points: 0,
-              ai_games_played: 0,
-              multiplayer_points: points,
-              multiplayer_games_played: 1,
-            });
-
-          if (insertLeaderboardError) {
-            console.error("Error creating leaderboard entry:", insertLeaderboardError);
-          } else {
-            console.log("Leaderboard entry created successfully");
-          }
-        }
-      }
+      // Note: No leaderboard updates for two-player mode
     } catch (error) {
       console.error("Error saving game:", error);
     }
