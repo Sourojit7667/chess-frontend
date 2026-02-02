@@ -4,7 +4,8 @@ import ChessBoard from "../components/ChessBoard";
 import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../services/supabase";
 
-const WS_URL = "ws://localhost:8080/api/ws";
+const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
+const WS_URL = backendUrl.replace(/^http/, "ws") + "/api/ws";
 const MULTIPLAYER_WIN_POINTS = 100;
 const MULTIPLAYER_DRAW_POINTS = 25;
 
