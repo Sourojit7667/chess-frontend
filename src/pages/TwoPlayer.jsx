@@ -149,7 +149,6 @@ const TwoPlayer = () => {
     const code = Math.random().toString(36).substring(2, 8).toUpperCase();
     setGameCode(code);
     setMode("online");
-    setGameStarted(true);
     setFen(new Chess().fen());
     gameRef.current = new Chess();
     setGameResult(null);
@@ -160,21 +159,26 @@ const TwoPlayer = () => {
 
     // Connect to WebSocket and create game
     connectWS();
-    setTimeout(() => {
+    
+    const sendCreateRequest = () => {
       if (wsRef.current?.readyState === WebSocket.OPEN) {
         wsRef.current.send(JSON.stringify({
           type: "create_game",
           payload: { gameCode: code, username: getUsername() }
         }));
+        setGameStarted(true);
+      } else {
+        setTimeout(sendCreateRequest, 100);
       }
-    }, 500);
+    };
+    
+    setTimeout(sendCreateRequest, 100);
   };
 
   const joinOnlineGame = () => {
     if (!joinCode) return;
     setGameCode(joinCode);
     setMode("online");
-    setGameStarted(true);
     setGameResult(null);
     setPlayerColor("black");
     setOpponentName("");
@@ -182,14 +186,20 @@ const TwoPlayer = () => {
 
     // Connect to WebSocket and join game
     connectWS();
-    setTimeout(() => {
+    
+    const sendJoinRequest = () => {
       if (wsRef.current?.readyState === WebSocket.OPEN) {
         wsRef.current.send(JSON.stringify({
           type: "join_game",
           payload: { gameCode: joinCode, username: getUsername() }
         }));
+        setGameStarted(true);
+      } else {
+        setTimeout(sendJoinRequest, 100);
       }
-    }, 500);
+    };
+    
+    setTimeout(sendJoinRequest, 100);
   };
 
   const handleMove = (move, newFen, isGameOver, isCheckmate, isDraw) => {
