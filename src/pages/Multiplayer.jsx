@@ -287,8 +287,10 @@ const Multiplayer = () => {
       let points = MULTIPLAYER_DRAW_POINTS;
 
       if (isCheckmate) {
-        const winnerColor = gameRef.current.turn() === 'w' ? 'black' : 'white';
-        const playerWon = winnerColor === playerColor;
+        // The side whose turn it is has been checkmated (they lost)
+        // So the winner is the opposite color
+        const loserColor = gameRef.current.turn() === 'w' ? 'white' : 'black';
+        const playerWon = loserColor !== playerColor;
         result = playerWon ? "win" : "loss";
         points = playerWon ? MULTIPLAYER_WIN_POINTS : 0;
       }
